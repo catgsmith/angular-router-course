@@ -1,49 +1,46 @@
 import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 
 import {Router} from '@angular/router';
 import {AuthStore} from '../services/auth.store';
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
+
 export class LoginComponent implements OnInit {
 
-  form: UntypedFormGroup;
+  form: FormGroup;
+  subscription: Subscription;
 
   constructor(
-    private fb: UntypedFormBuilder,
+    private fb: FormBuilder,
     private router: Router,
     private auth: AuthStore) {
-
-    this.form = fb.group({
-      email: ['test@angular-university.io', [Validators.required]],
-      password: ['test', [Validators.required]]
-    });
-
   }
 
   ngOnInit() {
-
+    this.form = this.fb.group({
+      email: ['test@angular-university.io', [Validators.required]],
+      password: ['test', [Validators.required]]
+    });
   }
 
   login() {
-
     const val = this.form.value;
 
-    this.auth.login(val.email, val.password)
-        .subscribe(
-            () => {},
-            err => {
-                alert("Login failed!");
-            }
-        );
-
-
-
+    this.subscription  = this.auth.login(val.email, val.password).subscribe(() => {}, this.handleLoginError);
   }
 
+  handleLoginError(err: any) {
+    alert("Login failed!");
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
 }
