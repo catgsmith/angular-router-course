@@ -17,11 +17,6 @@ export class CoursesService {
     loadCourseByUrl(courseUrl:string) {
        return this.http.get<Course>(`/api/courses/${courseUrl}`)
             .pipe(
-              tap(console.log),
-              delay(1000),
-              tap((data) => {
-                console.log("ready");
-                return data; }),
               shareReplay()
             );
     }
@@ -42,7 +37,6 @@ export class CoursesService {
     loadAllCourses(): Observable<Course[]> {
         return this.http.get<Course[]>("/api/courses")
             .pipe(
-                delay(1000),
                 map(res => res["payload"]),
                 shareReplay()
             );
