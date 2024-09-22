@@ -9,17 +9,28 @@ import {NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Route
   styleUrls: ['./loading.component.css']
 })
 export class LoadingComponent implements OnInit {
+  @Input() routing: boolean = false;
+  @Input() detectRoutingOngoing = false;
 
-  @Input()
-  routing: boolean = false;
-
-  constructor(public loadingService: LoadingService) {
-
-  }
+  constructor(
+    public loadingService: LoadingService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-
+    if (this.detectRoutingOngoing) {
+      this.router.events.subscribe(event => {
+        if (event instanceof NavigationStart) {
+          this.loadingService.loadingOn();
+        } else if (
+          event instanceof NavigationEnd ||
+          event instanceof NavigationError ||
+          event instanceof NavigationCancel
+        ) {
+          this.loadingService.loadingOff();
+        }
+      });
+    }
   }
-
-
 }
+
